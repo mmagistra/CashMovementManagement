@@ -30,7 +30,7 @@ class Transaction(models.Model):
     date = models.DateField(default=date.today)
     status = models.ForeignKey('Status', on_delete=models.CASCADE, related_name='transactions')
     type = models.ForeignKey('Type', on_delete=models.CASCADE, related_name='transactions')
-    category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='transactions_of_category', validators=[category_validator])
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='transactions_of_category')
     subcategory = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='transactions_of_subcategory')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(null=True, blank=True)
