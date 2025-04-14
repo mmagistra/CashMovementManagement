@@ -33,13 +33,13 @@ Create it if it doesn't exist by typing `python3 -m venv venv`
 11. To stop the server run type `CTRL+C` in console
 
 
-## About project:
+## Profect notes:
 - The project uses django admin as main interface
 - Project provides REST API for interacting with the database
 - Project provides swagger and redoc documentation
 - Project provides example data
 
-
+*Structure of database:*
 ```
 Models:
     Transaction
