@@ -9,8 +9,10 @@ from .filters import CategoryFilter, SubcategoryFilter
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
+    # fields which will ve displayed
     list_display = ('pk', 'date', 'status', 'type', 'category', 'subcategory', 'amount', 'description')
     list_display_links = ('pk', )
+    # fields which will be filtered. date is a DateRangeFilter which filters by range between two dates
     list_filter = (('date', DateRangeFilterBuilder()), 'status', 'type', CategoryFilter, SubcategoryFilter)
     form = TransactionForm
 
@@ -28,6 +30,7 @@ class CategoryAdmin(admin.ModelAdmin):
     form = CategoryForm
 
     class Media:
+        # Connecting js file for auto clearing fields
         js = ('js/admin/clear_fields.js',)
 
 
@@ -45,6 +48,7 @@ class TypeAdmin(admin.ModelAdmin):
     list_filter = ('name',)
 
 
+# grouping models in admin menu
 def group_models(*groups):
     def decorator(f):
         def wrapper(*args, **kwargs):

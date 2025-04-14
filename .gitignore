@@ -342,3 +342,4 @@ idea/
 
 # local
 local_debug/*
+/staticfiles/

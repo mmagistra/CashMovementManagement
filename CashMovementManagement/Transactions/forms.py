@@ -9,6 +9,7 @@ class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
         fields = ['name', 'type', 'parent_category']
+        # widget used for autocomplete of fields
         widgets = {
             'parent_category': autocomplete.ModelSelect2(url='Transactions:parent-category-autocomplete',
                                                        forward=['type'])
@@ -20,6 +21,7 @@ class TransactionForm(forms.ModelForm):
         model = Transaction
         fields = ['date', 'status', 'type', 'category', 'subcategory', 'amount', 'description']
 
+        # widget used for autocomplete of fields
         widgets = {
             'category': autocomplete.ModelSelect2(url='Transactions:category-autocomplete', forward=['type']),
             'subcategory': autocomplete.ModelSelect2(url='Transactions:subcategory-autocomplete', forward=['category']),

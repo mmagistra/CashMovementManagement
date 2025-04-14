@@ -8,6 +8,7 @@ from .serializers import TransactionSerializer, StatusSerializer, TypeSerializer
 class TransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
+    # use our custom filter
     filterset_class = TransactionFilter
 
 
@@ -24,4 +25,5 @@ class TypeViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    # Can filter by type and parent category in any request
     filterset_fields = ['type', 'parent_category']

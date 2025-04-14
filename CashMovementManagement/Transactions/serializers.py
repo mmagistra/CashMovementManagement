@@ -7,6 +7,7 @@ from .models import Transaction, Status, Type, Category
 
 
 class TransactionSerializer(ModelSerializer):
+    # PrimaryKeyRelatedField is used to get the primary key of the related object
     status = PrimaryKeyRelatedField(queryset=Status.objects.all())
     type = PrimaryKeyRelatedField(queryset=Type.objects.all())
     category = PrimaryKeyRelatedField(queryset=Category.objects.all())
@@ -18,6 +19,7 @@ class TransactionSerializer(ModelSerializer):
         depth = 2
 
     def validate(self, attrs):
+        # Check if category and subcategory are of the same type
         attrs = super().validate(attrs)
         category = attrs['category']
         subcategory = attrs['subcategory']
@@ -42,6 +44,7 @@ class TypeSerializer(ModelSerializer):
 
 
 class CategorySerializer(ModelSerializer):
+    # Check if category and subcategory are of the same type
     type = PrimaryKeyRelatedField(queryset=Type.objects.all())
     parent_category = PrimaryKeyRelatedField(queryset=Category.objects.all(), allow_null=True)
 
@@ -51,6 +54,7 @@ class CategorySerializer(ModelSerializer):
         depth = 1
 
     def validate(self, attrs):
+        # Check if category and subcategory are of the same type
         attrs = super().validate(attrs)
         parent_category = attrs['parent_category']
         type = attrs['type']

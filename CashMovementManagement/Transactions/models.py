@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.core.exceptions import ValidationError
 from django.db import models
 
 """
@@ -29,7 +30,7 @@ class Transaction(models.Model):
     date = models.DateField(default=date.today)
     status = models.ForeignKey('Status', on_delete=models.CASCADE, related_name='transactions')
     type = models.ForeignKey('Type', on_delete=models.CASCADE, related_name='transactions')
-    category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='transactions_of_category')
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='transactions_of_category', validators=[category_validator])
     subcategory = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='transactions_of_subcategory')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(null=True, blank=True)
@@ -43,6 +44,21 @@ class Transaction(models.Model):
         verbose_name = 'Transaction'
         verbose_name_plural = 'Transactions'
         ordering = ['date']
+
+    def clean(self):
+        if self.amount < 0:
+            raise ValidationError('Amount must be positive.')
+        category = Category.objects.get(pk=self.category.pk)
+        subcategory = Category.objects.get(pk=self.subcategory.pk)
+        type = Type.objects.get(pk=self.type.pk)
+        if category.type != type or subcategory.type != type:
+            raise ValidationError('Category and subcategory must be of the same type')
+        if category != subcategory.parent_category:
+            raise ValidationError('Subcategory must be a child of category')
+        if category.parent_category is not None:
+            raise ValidationError('Parent category cannot have a parent category.')
+        super().clean()
+
 
 
 class Status(models.Model):
@@ -96,4 +112,16 @@ class Category(models.Model):
         verbose_name_plural = 'Categories'
         ordering = ['name']
         unique_together = ('name', 'parent_category', 'type')
+
+    def clean(self):
+        if self.parent_category is not None:
+            parent_category = Category.objects.get(pk=self.parent_category.pk)
+            type = Type.objects.get(pk=self.type.pk)
+            if parent_category.type != type:
+                raise ValidationError('Parent category must be of the same type')
+            if parent_category == self:
+                raise ValidationError('Parent category cannot be the same as the category.')
+            if parent_category.parent_category is not None:
+                raise ValidationError('Parent category cannot have a parent category.')
+        super().clean()
 

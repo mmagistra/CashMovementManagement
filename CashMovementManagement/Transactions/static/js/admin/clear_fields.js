@@ -17,57 +17,75 @@ document.addEventListener('DOMContentLoaded', function() {
             if (sourceField) {
                 if (isAutocompleteField) {
                     sourceField.parentElement.addEventListener('click', function() {
-                        clearTargetFields(targetFieldsIds);
+                        setTimeout(function() {
+                            clearTargetFields(sourceField, targetFieldsIds);
+                        });
                     });
                 } else {
                     sourceField.addEventListener('change', function() {
-                        clearTargetFields(targetFieldsIds);
+                        setTimeout(function() {
+                            clearTargetFields(sourceField, targetFieldsIds);
+                        });
                     });
                 }
             }
         }
     }
 
-    function clearTargetFields(targetFieldsIds) {
+    function clearTargetFields(sourceField, targetFieldsIds) {
         targetFieldsIds.forEach(function(fieldId) {
-            const field = document.getElementById(fieldId);
-            if (!field) return;
-
-            field.value = '';
-            field.textContent = '';
-
-            // Для полей с автокомплитом (django-autocomplete-light)
-            // Ищем скрытое поле, которое обычно имеет name без префикса id_
-            const hiddenInputName = fieldId.replace('id_', '');
-            const hiddenInput = document.querySelector(`input[name="${hiddenInputName}"]`);
-            if (hiddenInput) {
-                hiddenInput.value = '';
-            }
-
-            // Очищаем визуальное представление Select2
-            const select2Container = field.closest('.select2-container') ||
-                                  field.nextElementSibling?.classList.contains('select2-container') ?
-                                  field.nextElementSibling : null;
-
-            if (select2Container) {
-                // Очищаем текст в видимой части
-                const renderedElement = select2Container.querySelector('.select2-selection__rendered');
-                if (renderedElement) {
-                    renderedElement.textContent = '';
-                    renderedElement.title = '';
-                }
-
-                // Убираем крестик очистки
-                const clearButton = select2Container.querySelector('.select2-selection__clear');
-                if (clearButton) {
-                    clearButton.style.display = 'none';
-                }
-            }
-
-            // Инициируем событие change для обновления состояния
-            const changeEvent = new Event('change', { bubbles: true });
-            field.dispatchEvent(changeEvent);
+            resetDALField(fieldId);
         });
+    }
+
+    function resetDALField(fieldId) {
+        // 1. Основные элементы
+        const fieldName = fieldId.replace('id_', '');
+        const visibleInput = document.getElementById(fieldId);
+        const hiddenInput = document.querySelector(`input[name="${fieldName}"]`);
+        const select2Container = visibleInput?.closest('.select2-container') ||
+                               document.querySelector(`[aria-owns="select2-${fieldId}-results"]`);
+
+        // 2. Сброс значений
+        if (visibleInput) {
+            visibleInput.value = '';
+            visibleInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        if (hiddenInput) {
+            hiddenInput.value = '';
+            hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        // 3. Обработка Select2 (если используется)
+        if (select2Container) {
+            // Вариант 1: через jQuery (если подключен)
+            if (typeof jQuery !== 'undefined' && jQuery.fn.select2) {
+                jQuery(`#${fieldId}`).val(null).trigger('change');
+            }
+            // Вариант 2: чистый JS
+            else {
+                const selection = select2Container.querySelector('.select2-selection__rendered');
+                if (selection) {
+                    selection.innerHTML = '<span class="select2-selection__placeholder">Выберите значение</span>';
+                }
+                const clearBtn = select2Container.querySelector('.select2-selection__clear');
+                if (clearBtn) clearBtn.click();
+            }
+        }
+
+        // 4. Специфичные для DAL элементы
+        const dalWrapper = document.querySelector(`[data-autocomplete-light-function="select2"][id$="-wrapper"]`);
+        if (dalWrapper) {
+            dalWrapper.dataset.select2Value = '[]';
+        }
+
+        // 5. Дополнительные события
+        const event = new CustomEvent('autocompleteLightChoiceReset', {
+            bubbles: true,
+            detail: { fieldName: fieldName }
+        });
+        if (visibleInput) visibleInput.dispatchEvent(event);
     }
 
     // Запускаем инициализацию с небольшой задержкой для динамических элементов

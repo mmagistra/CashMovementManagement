@@ -4,6 +4,7 @@ from django_filters import FilterSet, DateFilter
 from Transactions.models import Transaction
 
 
+# Can filter categories by type
 class CategoryFilter(admin.SimpleListFilter):
     title = 'category'
     parameter_name = 'category'
@@ -20,6 +21,7 @@ class CategoryFilter(admin.SimpleListFilter):
             return queryset.filter(category__id__exact=self.value())
 
 
+# Can filter subcategories by category and type
 class SubcategoryFilter(admin.SimpleListFilter):
     title = 'subcategory'
     parameter_name = 'subcategory'
@@ -39,6 +41,7 @@ class SubcategoryFilter(admin.SimpleListFilter):
             return queryset.filter(subcategory__id__exact=self.value())
 
 
+# Can filter transactions by date, status, type, category and subcategory
 class TransactionFilter(FilterSet):
     start_date = DateFilter(field_name='date', lookup_expr="gte")
     end_date = DateFilter(field_name='date', lookup_expr="lte")

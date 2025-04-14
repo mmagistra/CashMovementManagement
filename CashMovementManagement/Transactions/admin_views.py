@@ -6,6 +6,7 @@ from Transactions.forms import CategoryForm
 from Transactions.models import Category
 
 
+# Use for autocompletion of parent category
 class ParentCategoryAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         if not self.request.user.is_authenticated:
@@ -25,6 +26,7 @@ class ParentCategoryAutocomplete(autocomplete.Select2QuerySetView):
         return qs
 
 
+# Use for autocompletion of subcategory
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         if not self.request.user.is_authenticated:
@@ -44,6 +46,7 @@ class CategoryAutocomplete(autocomplete.Select2QuerySetView):
         return qs
 
 
+# Use for autocompletion of subcategory but in category model
 class SubcategoryAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         if not self.request.user.is_authenticated:
