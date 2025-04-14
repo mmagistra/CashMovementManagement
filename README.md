@@ -43,7 +43,8 @@ Create it if it doesn't exist by typing `python3 -m venv venv`
 ```
 Models:
     Transaction
-        - date - The date of creation of the record is filled out automatically, but can be changed manually.
+        - date - The date of creation of the record is filled out automatically,
+            but can be changed manually.
         - status - Status of the transaction. Foreign key.
         - type - Type of the transaction. Foreign key.
         - category - Contains category of transaction. Foreign key.
